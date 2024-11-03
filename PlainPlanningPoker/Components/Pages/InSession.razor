@@ -1,0 +1,87 @@
+﻿@page "/session/{SessionCode}"
+@inject NavigationManager NavigationManager
+@inject SessionService SessionService
+
+@using PlainPlanningPoker.Models
+@using PlainPlanningPoker.Services
+
+<h2>Session @SessionCode</h2>
+
+@if (session == null)
+{
+    <p>Invalid session code. Redirecting to home...</p>
+}
+else
+{
+    <div class="table">
+        @foreach (var player in session.Players)
+        {
+            <div class="player-card">
+                <div><strong>@player.Name</strong></div>
+                <div class="card">
+                    @if (session.CardsRevealed)
+                    {
+                        @player.SelectedCard
+                    }
+                    else if (!string.IsNullOrEmpty(player.SelectedCard))
+                    {
+                        <!-- Face down card -->
+                        <img src="images/card-back.png" alt="Card Back" class="card-img" />
+                    }
+                    else
+                    {
+                        <!-- Empty placeholder -->
+                        <div class="card-placeholder"></div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="hand">
+        @foreach (var card in cards)
+        {
+            <button class="card" @onclick="() => SelectCard(card)">
+                @card
+            </button>
+        }
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-warning" @onclick="RevealCards">Reveal Cards</button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string SessionCode { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+
+    private Session? session;
+    private readonly List<string> cards = new() { "0", "1", "2", "3", "5", "8", "13", "20", "40", "100", "?", "☕" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        session = SessionService.GetSession(SessionCode);
+        if (session == null)
+        {
+            await Task.Delay(1000);
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+    }
+
+    private async Task SelectCard(string card)
+    {
+
+    }
+
+    private async Task RevealCards()
+    {
+
+    }
+}
